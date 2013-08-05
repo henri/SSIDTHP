@@ -1,6 +1,6 @@
 # SSID to Highest Priority #
 
-<h1><img src="http://www.lbackup.org/_media/golden_safe.jpg" valign="middle"/></h1>
+<h1><img src="http://images.apple.com/support/assets/images/products/airport/hero_airport_wifi.png" valign="middle"/></h1>
 
 About
 --------
