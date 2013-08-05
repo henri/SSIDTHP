@@ -14,6 +14,7 @@ ssid_to_prioritize="mySSID_name"
 package_version="1.0"
 
 
+
 # Intenral variables
 parent_directory="`dirname \"${0}\"`"
 temporary_build_directory=`mktemp -d /tmp/SSIDTHP_build_directory.XXXXXXXXXXXXX`
@@ -29,7 +30,7 @@ realitve_postinstall_script_diectory_name="scripts"
 
 function clean_exit {
 	cd /
-	#rm -Rf "${temporary_build_directory}"
+	rm -Rf "${temporary_build_directory}"
 	exit ${exit_status}
 }
 
@@ -47,8 +48,12 @@ if [ $? != 0 ] ; then echo "ERROR! : Unable to generate output build directory."
 
 
 # set the SSID to prioritize within the template postinstall script
-pwd
 sed s/XXXXXXXXXXXXXXX/${ssid_to_prioritize}/g "./${realitve_postinstall_script_diectory_name}/${postinstall_template_name}" > "./${realitve_postinstall_script_diectory_name}/${postinstall_output_name}"
+if [ $? != 0 ] ; then echo "ERROR! : Issue generating postinstall script from template." ; exit_status=1 ; clean_exit ; fi
+
+# ensure the post install script is executable
+chmod 755 "./${realitve_postinstall_script_diectory_name}/${postinstall_output_name}"
+if [ $? != 0 ] ; then echo "ERROR! : Unable to make the postinstall script executable." ; exit_status=1 ; clean_exit ; fi
 
 # build that package
 pkgbuild --identifier ${package_identifier} --version ${package_version} --root ./root --scripts ./scripts --install-location / "${absolute_path_to_package_build}"
