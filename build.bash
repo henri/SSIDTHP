@@ -17,7 +17,7 @@ package_output_name="ssidthp.pkg"
 
 # Intenral variables
 exit_status=0
-parent_directory="`dirname \"${0}\"`"
+parent_directory="`dirname \"${0}\"`" ; if [ "`echo "${parent_directory}" | grep -e "^/"`" == "" ] ; then parent_directory="`pwd`/${parent_directory}" ; fi
 temporary_build_directory=`mktemp -d /tmp/SSIDTHP_build_directory.XXXXXXXXXXXXX`
 realitve_package_output_directory="build_output/`date \"+%Y-%m-%d_%H.%M.%S\"`"
 absolute_path_to_package_build_directory="${parent_directory}/${realitve_package_output_directory}"
