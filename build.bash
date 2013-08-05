@@ -12,14 +12,13 @@
 package_identifier="com.mydomain.ssidthp"
 ssid_to_prioritize="mySSID_name"
 package_version="1.0"
-
+package_output_name="ssidthp.pkg"
 
 
 # Intenral variables
+exit_status=0
 parent_directory="`dirname \"${0}\"`"
 temporary_build_directory=`mktemp -d /tmp/SSIDTHP_build_directory.XXXXXXXXXXXXX`
-exit_status=0
-package_output_name="ssidthp.pkg"
 realitve_package_output_directory="build_output/`date \"+%Y-%m-%d_%H.%M.%S\"`"
 absolute_path_to_package_build_directory="${parent_directory}/${realitve_package_output_directory}"
 absolute_path_to_package_build="${absolute_path_to_package_build_directory}/${package_output_name}"
