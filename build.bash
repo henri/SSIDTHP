@@ -51,6 +51,6 @@ pwd
 sed s/XXXXXXXXXXXXXXX/${ssid_to_prioritize}/g "./${realitve_postinstall_script_diectory_name}/${postinstall_template_name}" > "./${realitve_postinstall_script_diectory_name}/${postinstall_output_name}"
 
 # build that package
-#pkgbuild --identifier ${package_identifier} --version ${package_version} --root ./root --scripts ./scripts --install-location / "${absolute_path_to_package_build}"
+pkgbuild --identifier ${package_identifier} --version ${package_version} --root ./root --scripts ./scripts --install-location / "${absolute_path_to_package_build}"
 
 clean_exit
