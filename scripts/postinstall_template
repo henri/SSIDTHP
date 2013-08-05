@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# (C) 2013 Henri Shustak
+# Licenced under the Apache Licence
+# http://www.apache.org/licenses/LICENSE-2.0
+
+# Note : This script will only work if the SSID is actually in the prefered list.
+
+# configuration 
+relative_path_to_SSID_script="./SSID_to_highest_priority/ssid_to_highest_priority.bash"
+ssid_to_prioritize="XXXXXXXXXXXXXXX" 
+
+# internal varibles
+exit_status=0
+parent_directory="`dirname \"${0}\"`"
+
+sleep 5
+sync
+
+# prioritize the SSID
+sudo "${relative_path_to_SSID_script}" "${ssid_to_prioritize}"
+if [ $? != 0 ] ; then exit_status=1 ; fi
+exit ${exit_status}
