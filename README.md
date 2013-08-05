@@ -5,7 +5,7 @@
 About
 --------
 
-This is an open source (Apache 2.0) script and package build system which is designed to make building a package to set a specific SSID as the highest priority on a OS X based system as simple as possible..
+This is an open source (Apache 2.0) script and package build system which is designed to make building a package to set a specific SSID as the highest priority on a OS X based system as simple as possible.
 
 License: [Apache 2.0 License][1]
 
