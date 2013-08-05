@@ -1,4 +1,4 @@
-# SSID to High Priority #
+# SSID to Highest Priority #
 
 <h1><img src="http://www.lbackup.org/_media/golden_safe.jpg" valign="middle"/></h1>
 
