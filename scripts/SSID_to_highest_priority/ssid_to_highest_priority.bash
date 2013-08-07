@@ -28,6 +28,7 @@
 #
 #
 # Version History : v1.0 - initial release
+#                   v1.1 - minor logging improvement and bug fix relating to the selecting the correct security setting.
 # 
 
 
@@ -70,21 +71,21 @@ fi
 # Logic - Lets move the Wi-Fi SSID network priority to the top
 
 # Step #1 - Find the security type used for this wireless network
-SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $7}'`
+SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $7}' | awk -F "(" '{print $1}'`
 if [ "${SECURITYTYPE}" == "" ] ; then
 	log_message "ERROR! : Unable to determin the security type of the network : \"${WIRELESSNETWORKTOPRIORITISE}\""
 	exit -127
 fi
 
 # Step #2 - Remove the network from the prefered network list
-"${NETWORKSETUPCOMMAND}" -removepreferredwirelessnetwork ${WIRELESSHARDWAREDEVICE} "${WIRELESSNETWORKTOPRIORITISE}" 1> /dev/null
+"${NETWORKSETUPCOMMAND}" -removepreferredwirelessnetwork ${WIRELESSHARDWAREDEVICE} "${WIRELESSNETWORKTOPRIORITISE}" | logger -p "${LOGGERPRIORITY}" -t "${LOGGERTAG}"
 if [ ${?} != 0 ] ; then
 	log_message "ERROR! : Unable to remove the network \"${WIRELESSNETWORKTOPRIORITISE}\" from the prefered network list."
 	exit -127
 fi
 
 # Step #3 - Add it back to the list at index 0
-"${NETWORKSETUPCOMMAND}" -addpreferredwirelessnetworkatindex ${WIRELESSHARDWAREDEVICE} "${WIRELESSNETWORKTOPRIORITISE}" 0 "${SECURITYTYPE}" 1> /dev/null
+"${NETWORKSETUPCOMMAND}" -addpreferredwirelessnetworkatindex ${WIRELESSHARDWAREDEVICE} "${WIRELESSNETWORKTOPRIORITISE}" 0 "${SECURITYTYPE}" | logger -p "${LOGGERPRIORITY}" -t "${LOGGERTAG}"
 if [ ${?} != 0 ] ; then
 	log_message "ERROR! : Unable to add the network \"${WIRELESSNETWORKTOPRIORITISE}\" back to the prefered network list."
 	exit -127
