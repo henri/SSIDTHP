@@ -13,6 +13,7 @@ ssid_to_prioritize="XXXXXXXXXXXXXXX"
 # internal varibles
 exit_status=0
 parent_directory="`dirname \"${0}\"`"
+NETWORKSETUPCOMMAND="/usr/sbin/networksetup"
 
 sleep 5
 sync
@@ -20,4 +21,10 @@ sync
 # prioritize the SSID
 sudo "${relative_path_to_SSID_script}" "${ssid_to_prioritize}"
 if [ $? != 0 ] ; then exit_status=1 ; fi
+exit ${exit_status}
+
+# power on and power off the airport - this may cause network disruption - you may want to comment out these lines when building a package.
+"${NETWORKSETUPCOMMAND}" -setairportpower en1 off ; if [ $? != 0 ] ; then exit_status=1 ; fi
+"${NETWORKSETUPCOMMAND}" -setairportpower en1 on ; if [ $? != 0 ] ; then exit_status=1 ; fi
+
 exit ${exit_status}

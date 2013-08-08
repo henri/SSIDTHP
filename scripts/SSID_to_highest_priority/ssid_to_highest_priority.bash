@@ -28,12 +28,13 @@
 #
 #
 # Version History : v1.0 - initial release
-#                   v1.1 - minor logging improvement and bug fix relating to the selecting the correct security setting.
-# 
+#                   v1.1 - minor logging improvement and bug fix relating to the selecting the correct security setting
+#                   v1.2 - updated the LOGGERTAG varible to match the name of the project
+#
 
 
 # Internal Varibles
-LOGGERTAG="swnthp"
+LOGGERTAG="ssidthp"
 LOGGERPRIORITY="notice"
 WIRELESSHARDWAREDEVICE="en1"
 CURRENTUSER=`whoami`
