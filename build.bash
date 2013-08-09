@@ -61,7 +61,7 @@ pkgbuild --identifier ${package_identifier} --version ${package_version} --root 
 # echo -n "Proceed with deployment of the latest build? [Y/n] : "
 # read result
 # if [ "${result}" == "" ] || [ "${result}" == "y" ] || [ "${result}" == "yes" ] || [ "${result}" == "Y" ] || [ "${result}" == "YES" ] ; then
-# 	rsync -a "${absolute_path_to_package_build}" username@server:"/destination/path/to/SMC-Student_SSID_Priority.pkg" 
+# 	rsync -a "${absolute_path_to_package_build}" username@server:"/destination/path/to/${package_output_name}" 
 # 	if [ $? != 0 ] ; then 
 #       echo "ERROR!: Deployment stage failed." ; exit_status=1 ; clean_exit
 # 	else
