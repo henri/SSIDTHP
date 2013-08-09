@@ -13,7 +13,7 @@ License: [Apache 2.0 License][1]
 Usage Instructions
 ---------
 
-- Ensure you have the developer tools and command line tools installed. In particular importance is the `pkgbuild` command.
+- Ensure you have the developer tools and command line tools installed. Of particular importance is the `pkgbuild` command which is used in order to build the package.
 - Duplicate (copy) the build script to a file in the same direcotry with an approriate name (eg. my_build.bash)
 - Edit your copy of the build script setting the *package_identifier*, *ssid_to_prioritize*, *package_output_name* and *package_version* varibles to suite you requirments.
 - Run the build script and with all things going well collect your output package from the build_output directory
