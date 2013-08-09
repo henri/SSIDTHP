@@ -57,4 +57,16 @@ if [ $? != 0 ] ; then echo "ERROR! : Unable to make the postinstall script execu
 # build that package
 pkgbuild --identifier ${package_identifier} --version ${package_version} --root ./root --scripts ./scripts --install-location / "${absolute_path_to_package_build}"
 
+# upload the latest built package to a remote server using rsync (you could use a different appraoch for deployment)
+# echo -n "Proceed with deployment of the latest build? [Y/n] : "
+# read result
+# if [ "${result}" == "" ] || [ "${result}" == "y" ] || [ "${result}" == "yes" ] || [ "${result}" == "Y" ] || [ "${result}" == "YES" ] ; then
+# 	rsync -a "${absolute_path_to_package_build}" username@server:"/destination/path/to/SMC-Student_SSID_Priority.pkg" 
+# 	if [ $? != 0 ] ; then 
+#       echo "ERROR!: Deployment stage failed." ; exit_status=1 ; clean_exit
+# 	else
+# 		echo "Deployment completed succesfully."
+# 	fi
+# fi
+
 clean_exit
