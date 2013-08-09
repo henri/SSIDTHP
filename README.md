@@ -22,7 +22,7 @@ Usage Instructions
 Notes relating to using the core script within another system
 ---------
  
-The core part of this system is a script called "ssid_to_highest_priority.bash" which is berried within the scripts direcotry.  Usage information is located in the coments of this script and is summerized below for convenince : 
+The core part of this system is a script called "ssid_to_highest_priority.bash" which is buried within the scripts direcotry.  Usage information is located in the coments of this script and is summerized below for convenince : 
 `set_wireless_network_to_highest_priority.bash <wireless_network_name>`
 
 Finally, should you wish to use this script in another system it is important that you adhear to the licence agreement.
