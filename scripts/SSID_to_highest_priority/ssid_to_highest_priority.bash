@@ -4,7 +4,7 @@
 # Licenced under the Apache Licence
 # http://www.apache.org/licenses/LICENSE-2.0
 # Latest copy of this script is availible from :
-# http://github.com/henri/swnthp/
+# http://github.com/henri/ssidthp/
 #
 #
 # About this script :
