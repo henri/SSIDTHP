@@ -30,18 +30,21 @@
 # Version History : v1.0 - initial release
 #                   v1.1 - minor logging improvement and bug fix relating to the selecting the correct security setting
 #                   v1.2 - updated the LOGGERTAG varible to match the name of the project
+#					v1.3 - implimented automated detection of the wireless network hardware device
 #
 
 
 # Internal Varibles
 LOGGERTAG="ssidthp"
 LOGGERPRIORITY="notice"
-WIRELESSHARDWAREDEVICE="en1"
+WIRELESSHARDWAREDEVICE=""
 CURRENTUSER=`whoami`
 WIRELESSNETWORKTOPRIORITISE="${1}"
 NETWORKSETUPCOMMAND="/usr/sbin/networksetup"
 AIRPORTCOMMAND="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
 SECURITYTYPE=""
+DEFAULTWIRELESSNETWORKNAME=""
+INITIALAIRPORTPOWERSTATUS=""
 
 # Functions
 function log_message() {
@@ -61,13 +64,24 @@ function network_listed_as_prefered {
 if ! [ -e "${NETWORKSETUPCOMMAND}" ] ; then log_message "ERROR! : Unable to locate required helper utility : \"${NETWORKSETUPCOMMAND}\" ." ; exit -127 ; fi
 if ! [ -e "${AIRPORTCOMMAND}" ] ; then log_message "ERROR! : Unable to locate required helper utility : \"${AIRPORTCOMMAND}\" ." ; exit -127 ; fi
 if [ "${CURRENTUSER}" != "root" ] ; then log_message "ERROR! : This script must be run with super user privileges." ; exit -127 ; fi
+if [ "`${AIRPORTCOMMAND} -I | awk -F \"AirPort: \" '{print $2}'`" == "Off" ] ; then log_message "ERROR! : Wireless hardware is powered off."  ; exit -127 ; fi
 if [ ${#} -ne 1 ]; then log_message "USAGE : set_wireless_network_to_highest_priority.bash <wireless_network_name>." ; exit -127 ; fi
+
+# Check if there was a WIRELESSHARDWAREDEVICE varible specified (eg. en1, en0)
+if [ "${WIRELESSHARDWAREDEVICE}" == "" ] ; then 
+	# attempt to dynamically calculate which device should be used, based on default names for network devices.
+	if [ `uname -r | awk -F "." '{print $1}'` -le 10 ] ; then DEFAULTWIRELESSNETWORKNAME="Airport" ; else DEFAULTWIRELESSNETWORKNAME="Wi-Fi" ; fi
+	WIRELESSHARDWAREDEVICE=`networksetup -listallhardwareports | grep "${DEFAULTWIRELESSNETWORKNAME}" -A 1 | tail -n 1 | awk -F "Device: " '{print $2}'`
+fi
+	
+# Check if the wireless network we are setting as the highest priority is even in the list of prefered networks.
 if [ "`network_listed_as_prefered; echo ${?}`" == "1" ] ; then 
 	log_message "ERROR! : The network \"${WIRELESSNETWORKTOPRIORITISE}\" was not found in the preferred networks list."
 	log_message "         Please ensure the network SSID provided to this script is within the list of"
 	log_message "         prefered networks on this system and attempt to run this script again."
 	exit -127
 fi 
+
 
 # Logic - Lets move the Wi-Fi SSID network priority to the top
 
