@@ -37,7 +37,7 @@
 # Internal Varibles
 LOGGERTAG="ssidthp"
 LOGGERPRIORITY="notice"
-WIRELESSHARDWAREDEVICE="en0" # leave blank for automated detection
+WIRELESSHARDWAREDEVICE="" # leave blank for automated detection
 CURRENTUSER=`whoami`
 WIRELESSNETWORKTOPRIORITISE="${1}"
 NETWORKSETUPCOMMAND="/usr/sbin/networksetup"
