@@ -3,7 +3,7 @@
 # (C) 2013 Henri Shustak
 # Licenced under the Apache Licence
 # http://www.apache.org/licenses/LICENSE-2.0
-# Latest copy of this script is availible from :
+# Latest copy of this script is available from :
 # http://github.com/henri/ssidthp/
 #
 #
@@ -16,10 +16,10 @@
 # Known issues :
 #
 #         (1) The current version of this script may disrupt network activity if you are currently
-#         connected to the network to be moved to the highest priority in the prefered network list.
-#         (2) Runnin this script will not mean that you are connected to the network provided.
-#         To connect to the prefered network, you try power cycling the airport card. Below
-#         are two commands which should switch off and then backon the airport card : 
+#         connected to the network to be moved to the highest priority in the preferred network list.
+#         (2) Running this script will not mean that you are connected to the network provided.
+#         To connect to the preferred network, you try power cycling the airport card. Below
+#         are two commands which should switch off and then back on the airport card : 
 #              # networksetup -setairportpower en1 off
 #              # networksetup -setairportpower en1 on
 #
@@ -29,8 +29,9 @@
 #
 # Version History : v1.0 - initial release
 #                   v1.1 - minor logging improvement and bug fix relating to the selecting the correct security setting
-#                   v1.2 - updated the LOGGERTAG varible to match the name of the project
+#                   v1.2 - updated the LOGGERTAG variable to match the name of the project
 #					v1.3 - implimented automated detection of the wireless network hardware device
+#                   v1.4 - fixed various spelling as well as fixed a capitalisation issue
 #
 
 
@@ -48,7 +49,7 @@ INITIALAIRPORTPOWERSTATUS=""
 
 # Functions
 function log_message() {
-	# using echo rather than logger, will keep the output on the termianl simple and within standard output.
+	# using echo rather than logger, will keep the output on the terminal simple and within standard output.
 	logger -p "${LOGGERPRIORITY}" -t "${LOGGERTAG}" "${1}"
 	echo "    $1"
 }
@@ -70,7 +71,7 @@ if [ ${#} -ne 1 ]; then log_message "USAGE : set_wireless_network_to_highest_pri
 # Check if there was a WIRELESSHARDWAREDEVICE varible specified (eg. en1, en0)
 if [ "${WIRELESSHARDWAREDEVICE}" == "" ] ; then 
 	# attempt to dynamically calculate which device should be used, based on default names for network devices.
-	if [ `uname -r | awk -F "." '{print $1}'` -le 10 ] ; then DEFAULTWIRELESSNETWORKNAME="Airport" ; else DEFAULTWIRELESSNETWORKNAME="Wi-Fi" ; fi
+	if [ `uname -r | awk -F "." '{print $1}'` -le 10 ] ; then DEFAULTWIRELESSNETWORKNAME="AirPort" ; else DEFAULTWIRELESSNETWORKNAME="Wi-Fi" ; fi
 	WIRELESSHARDWAREDEVICE=`networksetup -listallhardwareports | grep "${DEFAULTWIRELESSNETWORKNAME}" -A 1 | tail -n 1 | awk -F "Device: " '{print $2}'`
 fi
 	
@@ -78,7 +79,7 @@ fi
 if [ "`network_listed_as_prefered; echo ${?}`" == "1" ] ; then 
 	log_message "ERROR! : The network \"${WIRELESSNETWORKTOPRIORITISE}\" was not found in the preferred networks list."
 	log_message "         Please ensure the network SSID provided to this script is within the list of"
-	log_message "         prefered networks on this system and attempt to run this script again."
+	log_message "         preferred networks on this system and attempt to run this script again."
 	exit -127
 fi 
 
@@ -88,21 +89,21 @@ fi
 # Step #1 - Find the security type used for this wireless network
 SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $7}' | awk -F "(" '{print $1}'`
 if [ "${SECURITYTYPE}" == "" ] ; then
-	log_message "ERROR! : Unable to determin the security type of the network : \"${WIRELESSNETWORKTOPRIORITISE}\""
+	log_message "ERROR! : Unable to determine the security type of the network : \"${WIRELESSNETWORKTOPRIORITISE}\""
 	exit -127
 fi
 
-# Step #2 - Remove the network from the prefered network list
+# Step #2 - Remove the network from the preferred network list
 "${NETWORKSETUPCOMMAND}" -removepreferredwirelessnetwork ${WIRELESSHARDWAREDEVICE} "${WIRELESSNETWORKTOPRIORITISE}" | logger -p "${LOGGERPRIORITY}" -t "${LOGGERTAG}"
 if [ ${?} != 0 ] ; then
-	log_message "ERROR! : Unable to remove the network \"${WIRELESSNETWORKTOPRIORITISE}\" from the prefered network list."
+	log_message "ERROR! : Unable to remove the network \"${WIRELESSNETWORKTOPRIORITISE}\" from the preferred network list."
 	exit -127
 fi
 
 # Step #3 - Add it back to the list at index 0
 "${NETWORKSETUPCOMMAND}" -addpreferredwirelessnetworkatindex ${WIRELESSHARDWAREDEVICE} "${WIRELESSNETWORKTOPRIORITISE}" 0 "${SECURITYTYPE}" | logger -p "${LOGGERPRIORITY}" -t "${LOGGERTAG}"
 if [ ${?} != 0 ] ; then
-	log_message "ERROR! : Unable to add the network \"${WIRELESSNETWORKTOPRIORITISE}\" back to the prefered network list."
+	log_message "ERROR! : Unable to add the network \"${WIRELESSNETWORKTOPRIORITISE}\" back to the preferred network list."
 	exit -127
 fi
 
