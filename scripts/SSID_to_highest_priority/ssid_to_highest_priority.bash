@@ -32,7 +32,9 @@
 #                   v1.2 - updated the LOGGERTAG variable to match the name of the project
 #					v1.3 - implimented automated detection of the wireless network hardware device
 #                   v1.4 - fixed various spelling as well as fixed a capitalisation issue
+#                   v1.5 - fixed various bugs relating to reliability particulatly when running on Mac OS X 10.5.x systems.
 #
+
 
 
 # Internal Varibles
@@ -57,7 +59,7 @@ function list_networks {
 	"${NETWORKSETUPCOMMAND}" -listpreferredwirelessnetworks ${WIRELESSHARDWAREDEVICE} | grep -v "Preferred networks on en1:" | cut -c 2-
 }
 function network_listed_as_prefered {
-	list_networks | grep "${WIRELESSNETWORKTOPRIORITISE}"
+	list_networks | grep -x "${WIRELESSNETWORKTOPRIORITISE}"
 	return ${?}
 }
 
@@ -76,12 +78,18 @@ if [ "${WIRELESSHARDWAREDEVICE}" == "" ] ; then
 fi
 	
 # Check if the wireless network we are setting as the highest priority is even in the list of prefered networks.
-if [ "`network_listed_as_prefered; echo ${?}`" == "1" ] ; then 
-	log_message "ERROR! : The network \"${WIRELESSNETWORKTOPRIORITISE}\" was not found in the preferred networks list."
-	log_message "         Please ensure the network SSID provided to this script is within the list of"
-	log_message "         preferred networks on this system and attempt to run this script again."
-	exit -127
-fi 
+if [ `uname -r | awk -F "." '{print $1}'` -le 9 ] ; then 
+	# Running on Mac OS 10.5 or earlier (not great support with this script), which means skipping this check.
+	log_message "This script is designed to work with Mac OS X 10.6 or later." 
+else
+	# Running on Mac OS 10.6 or later carry out additional check
+	if [ "`network_listed_as_prefered; echo ${?}`" == "1" ] ; then 
+		log_message "ERROR! : The network \"${WIRELESSNETWORKTOPRIORITISE}\" was not found in the preferred networks list."
+		log_message "         Please ensure the network SSID provided to this script is within the list of"
+		log_message "         preferred networks on this system and attempt to run this script again."
+		exit -127
+	fi
+fi
 
 
 # Logic - Lets move the Wi-Fi SSID network priority to the top
