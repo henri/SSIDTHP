@@ -18,7 +18,7 @@
 #         (1) The current version of this script may disrupt network activity if you are currently
 #         connected to the network to be moved to the highest priority in the preferred network list.
 #         (2) Running this script will not mean that you are connected to the network provided.
-#         To connect to the preferred network, you try power cycling the airport card. Below
+#         To connect to the preferred network, you should power cycling the airport card. Below
 #         are two commands which should switch off and then back on the airport card : 
 #              # networksetup -setairportpower en1 off
 #              # networksetup -setairportpower en1 on
@@ -30,22 +30,24 @@
 # Version History : v1.0 - initial release
 #                   v1.1 - minor logging improvement and bug fix relating to the selecting the correct security setting
 #                   v1.2 - updated the LOGGERTAG variable to match the name of the project
-#					v1.3 - implimented automated detection of the wireless network hardware device
+#                   v1.3 - implimented automated detection of the wireless network hardware device
 #                   v1.4 - fixed various spelling as well as fixed a capitalisation issue
 #                   v1.5 - fixed various bugs relating to reliability particulatly when running on Mac OS X 10.5.x systems.
+#                   v1.6 - resovled bug when running on Mac OS X 10.5.x systems.
 #
 
 
+# Configuration
+WIRELESSHARDWAREDEVICE="" # leave blank for automated detection
+SECURITYTYPE="" # leave blank for automated detection
 
 # Internal Varibles
 LOGGERTAG="ssidthp"
 LOGGERPRIORITY="notice"
-WIRELESSHARDWAREDEVICE="" # leave blank for automated detection
 CURRENTUSER=`whoami`
 WIRELESSNETWORKTOPRIORITISE="${1}"
 NETWORKSETUPCOMMAND="/usr/sbin/networksetup"
 AIRPORTCOMMAND="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
-SECURITYTYPE=""
 DEFAULTWIRELESSNETWORKNAME=""
 INITIALAIRPORTPOWERSTATUS=""
 
@@ -62,6 +64,7 @@ function network_listed_as_prefered {
 	list_networks | grep -x "${WIRELESSNETWORKTOPRIORITISE}"
 	return ${?}
 }
+
 
 # Pre-Flight Checks
 if ! [ -e "${NETWORKSETUPCOMMAND}" ] ; then log_message "ERROR! : Unable to locate required helper utility : \"${NETWORKSETUPCOMMAND}\" ." ; exit -127 ; fi
@@ -95,10 +98,20 @@ fi
 # Logic - Lets move the Wi-Fi SSID network priority to the top
 
 # Step #1 - Find the security type used for this wireless network
-SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $7}' | awk -F "(" '{print $1}'`
-if [ "${SECURITYTYPE}" == "" ] ; then
-	log_message "ERROR! : Unable to determine the security type of the network : \"${WIRELESSNETWORKTOPRIORITISE}\""
-	exit -127
+if [ "${SECURITYTYPE}" == "" ] ; then 
+	# Attempt auto discovery of security type if there one has not been manually specified
+	if [ `uname -r | awk -F "." '{print $1}'` -le 9 ] ; then 
+		# Discover security type on Mac OS X 10.5 and earlier
+		SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $5}' | awk -F "(" '{print $1}'`
+	else
+		# Discover security type on Mac OS X 10.6 and later
+		SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $7}' | awk -F "(" '{print $1}'`
+	fi
+	if [ "${SECURITYTYPE}" == "" ] ; then
+		# Check the scurity type for the SSID to prioritize was found during auto discovery.
+		log_message "ERROR! : Unable to determine the security type of the network : \"${WIRELESSNETWORKTOPRIORITISE}\""
+		exit -127
+	fi
 fi
 
 # Step #2 - Remove the network from the preferred network list
