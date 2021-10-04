@@ -34,6 +34,7 @@
 #                   v1.4 - fixed various spelling as well as fixed a capitalisation issue
 #                   v1.5 - fixed various bugs relating to reliability particulatly when running on Mac OS X 10.5.x systems.
 #                   v1.6 - resovled bug when running on Mac OS X 10.5.x systems.
+#                   v1.7 - added support for checking if the network already is set as highest priority and if we are connected, to quickly bypass any changes
 #
 
 
@@ -50,12 +51,16 @@ NETWORKSETUPCOMMAND="/usr/sbin/networksetup"
 AIRPORTCOMMAND="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
 DEFAULTWIRELESSNETWORKNAME=""
 INITIALAIRPORTPOWERSTATUS=""
+CURRENT_HIGHEST_PRIORITY_SSID=""
+LOG_MESSAGE_ECHO="YES"
 
 # Functions
 function log_message() {
 	# using echo rather than logger, will keep the output on the terminal simple and within standard output.
 	logger -p "${LOGGERPRIORITY}" -t "${LOGGERTAG}" "${1}"
-	echo "    $1"
+	if [ "${LOG_MESSAGE_ECHO}" == "YES" ] ; then
+		echo "    $1"
+	fi
 }
 function list_networks {
 	"${NETWORKSETUPCOMMAND}" -listpreferredwirelessnetworks ${WIRELESSHARDWAREDEVICE} | grep -v "Preferred networks on en1:" | cut -c 2-
@@ -97,21 +102,29 @@ fi
 
 # Logic - Lets move the Wi-Fi SSID network priority to the top
 
-# Step #1 - Find the security type used for this wireless network
+# Step #2 - Find the security type used for this wireless network
 if [ "${SECURITYTYPE}" == "" ] ; then 
 	# Attempt auto discovery of security type if there one has not been manually specified
 	if [ `uname -r | awk -F "." '{print $1}'` -le 9 ] ; then 
 		# Discover security type on Mac OS X 10.5 and earlier
-		SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $5}' | awk -F "(" '{print $1}'`
+		SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n="${WIRELESSNETWORKTOPRIORITISE}" '$1==n' | head -n 1 | awk '{print $5}' | awk -F "(" '{print $1}'`
 	else
 		# Discover security type on Mac OS X 10.6 and later
-		SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n=$WIRELESSNETWORKTOPRIORITISE '$1==n' | head -n 1 | awk '{print $7}' | awk -F "(" '{print $1}'`
+		SECURITYTYPE=`"${AIRPORTCOMMAND}" -s | awk -v n="${WIRELESSNETWORKTOPRIORITISE}" '$1==n' | head -n 1 | awk '{print $7}' | awk -F "(" '{print $1}'`
 	fi
 	if [ "${SECURITYTYPE}" == "" ] ; then
 		# Check the scurity type for the SSID to prioritize was found during auto discovery.
 		log_message "ERROR! : Unable to determine the security type of the network : \"${WIRELESSNETWORKTOPRIORITISE}\""
 		exit -127
 	fi
+fi
+
+# Step #1 - Check if this network has the highest priority and if we are currently connected
+CURRENT_HIGHEST_PRIORITY_SSID=`"${NETWORKSETUPCOMMAND}" -listpreferredwirelessnetworks ${WIRELESSHARDWAREDEVICE} | head -n 2 | tail -n 1 | awk -F "\t" '{print $2}'`
+if [ "${CURRENT_HIGHEST_PRIORITY_SSID}" == "${WIRELESSNETWORKTOPRIORITISE}" ] ; then
+	LOG_MESSAGE_ECHO="NO"
+	log_message "Network \"${WIRELESSNETWORKTOPRIORITISE}\" is already the preferred network."
+	exit 0
 fi
 
 # Step #2 - Remove the network from the preferred network list
